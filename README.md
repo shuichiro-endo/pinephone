@@ -170,6 +170,9 @@ urllib3            1.26.13
 [notice] To update, run: pip install --upgrade pip
 ```
 5. run argostranslategui (performance test)
+```
+argos-translate-gui
+```
 > [!NOTE]
 > To perform a translation, you need to download the language packages data using Manage Packages.
 >
@@ -188,7 +191,7 @@ Comment=argos translate gui
 Icon=                                                   # optional
 Categories=Utility;
 ```
-7. run argostranslategui application (performance test)
+7. run argostranslategui application from app grid (performance test)
 
 #### change font size of argos translate gui
 1. modify ~/.pyenv/versions/3.8.19/lib/python3.8/site-packages/argostranslategui/gui.py
@@ -213,8 +216,8 @@ self.textEdit_layout.addWidget(self.right_textEdit)
 2. run argostranslategui application (performance test)
 ![](imgs/001.jpg)
 
-### customize lockscreen and app-grid
-#### set a background for lockscreen and app-grid
+### customize lockscreen and app grid
+#### set a background for lockscreen and app grid
 - [How To: set up custom lock screen and app-grid for Phosh based systems](https://forum.pine64.org/showthread.php?tid=14292)
 
 #### set font size for lockscreen
