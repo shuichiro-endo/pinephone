@@ -85,6 +85,11 @@ export GTK_IM_MODULE=fcitx
 ### install custom squeekboard layout
 - [Ick/Squeekboard-Layouts](https://codeberg.org/Ick/Squeekboard-Layouts)
     - Manual Install
+- [squeekboard](https://gitlab.gnome.org/World/Phosh/squeekboard)
+- [Welcome to squeekboard’s documentation!](https://world.pages.gitlab.gnome.org/Phosh/squeekboard/index.html)
+    - [A guide to creating layouts](https://world.pages.gitlab.gnome.org/Phosh/squeekboard/tutorial.html)
+- [Librem5 - A custom squeekboard keyboard tutorial](https://forums.puri.sm/t/librem5-a-custom-squeekboard-keyboard-tutorial/17243)
+- [Using non-latin language on Librem 5](https://forums.puri.sm/t/using-non-latin-language-on-librem-5/7103)
 
 ### install pyenv
 - [pyenv](https://github.com/pyenv/pyenv)
