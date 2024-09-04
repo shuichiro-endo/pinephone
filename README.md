@@ -1,5 +1,5 @@
 # pinephone
-pinephone
+setup [pinephone](https://pine64.org/devices/pinephone/)
 
 ## install Two-Boot
 - Two-Boot Installation instructions
@@ -56,7 +56,9 @@ scale = 1
 - [How to enable shuffled keypad on the lockscreen](https://wiki.debian.org/Mobian/How-to#How_to_enable_shuffled_keypad_on_the_lockscreen)
 
 
-### install japanese input method
+### install input method (for japanese)
+> [!CAUTION]
+> You are not able to display virtual keyboard when you enter pin and application search, if you perform this setting.
 1. install gnome-tweaks
 ```
 sudo apt update
@@ -100,7 +102,9 @@ export GTK_IM_MODULE=fcitx
 
 #### install argos translate gui
 1. Turn off suspend setting
-    - Settings > Power > Automatic Suspend > Never 
+    - Settings > Power > Automatic Suspend
+        - On Battery Power > Off
+        - Plugged In > Off
 2. plug in pinephone
 3. install python 3.8.19 using pyenv
 ```
@@ -129,7 +133,7 @@ pip3 install argostranslategui
 ```
 $ pyenv versions
   system
-* 3.8.19 (set by /home/test/.python-version)
+* 3.8.19 (set by /home/mobian/.python-version)
 ```
 - pip list
 ```
@@ -188,7 +192,7 @@ Terminal=false
 Exec=/home/mobian/.pyenv/shims/argos-translate-gui      # change username (mobian)
 Name=argos-translate-gui
 Comment=argos translate gui
-Icon=                                                   # optional
+Icon=view-dual-symbolic                                 # optional
 Categories=Utility;
 ```
 7. run argostranslategui application from app grid (performance test)
@@ -249,4 +253,171 @@ phosh-top-panel {
 #### find out css node and selector for Phosh
 - [Developing for Mobile Linux with Phosh - Part 0: Running nested](https://phosh.mobi/posts/phosh-dev-part-0/)
 - [CSS Properties](https://docs.gtk.org/gtk3/css-properties.html)
+
+
+### customize Phosh
+- [Phosh](https://gitlab.gnome.org/World/Phosh/phosh)
+
+```
+sudo mkdir /git
+cd /git
+sudo git clone https://gitlab.gnome.org/World/Phosh/phosh
+cd phosh
+git submodule update --init --recursive
+
+sudo apt-get -y install build-essential
+sudo apt-get -y build-dep .
+
+meson setup _build
+meson compile -C _build
+
+sudo mv /usr/libexec/phosh /usr/libexec/phosh_orig
+sudo ln -s /git/phosh/_build/run /usr/libexec/phosh
+ls -l /usr/libexec/phosh
+```
+
+#### invisible search bar on the app grid
+1. modify phosh/src/ui/app-grid.ui
+- phosh/src/ui/app-grid.ui
+```
+diff --git a/src/ui/app-grid.ui b/src/ui/app-grid.ui
+index 03b66485..6feb8241 100644
+--- a/src/ui/app-grid.ui
++++ b/src/ui/app-grid.ui
+@@ -20,7 +20,7 @@
+                 <property name="visible">True</property>
+                 <child>
+                   <object class="GtkSearchEntry" id="search">
+-                    <property name="visible">True</property>
++                    <property name="visible">False</property>
+                     <property name="placeholder-text" translatable="yes">Search apps<E2><80><A6></property>
+```
+2. build
+```
+cd /git/phosh
+sudo meson compile -C _build
+```
+3. reboot pinephone
+
+#### enable shuffled keypad on the lockscreen
+1. modify phosh/data/sm.puri.phosh.gschema.xml
+- phosh/data/sm.puri.phosh.gschema.xml
+```
+diff --git a/data/sm.puri.phosh.gschema.xml b/data/sm.puri.phosh.gschema.xml
+index fe0bcc37..61841454 100644
+--- a/data/sm.puri.phosh.gschema.xml
++++ b/data/sm.puri.phosh.gschema.xml
+@@ -121,7 +121,7 @@
+   <schema id="sm.puri.phosh.lockscreen"
+           path="/sm/puri/phosh/lockscreen/">
+     <key name="shuffle-keypad" type="b">
+-      <default>false</default>
++      <default>true</default>
+       <summary>Whether to scramble the keypad</summary>
+```
+2. build
+```
+cd /git/phosh
+sudo meson compile -C _build
+```
+3. reboot pinephone
+
+#### shutdown pinephone if the wrong pin is entered 5 times in a row on the keypad
+1. modify phosh/src/lockscreen.c (check auth count and shutdown pinephone)
+- phosh/src/lockscreen.c
+```
+diff --git a/src/lockscreen.c b/src/lockscreen.c
+index ef00ea27..6bd62d44 100644
+--- a/src/lockscreen.c
++++ b/src/lockscreen.c
+@@ -115,6 +115,8 @@ typedef struct {
+ 
+ G_DEFINE_TYPE_WITH_PRIVATE (PhoshLockscreen, phosh_lockscreen, PHOSH_TYPE_LAYER_SURFACE)
+ 
++static int auth_count = 0;
++
+ 
+ static void
+ phosh_lockscreen_set_property (GObject      *object,
+@@ -260,6 +262,7 @@ auth_async_cb (PhoshAuth *auth, GAsyncResult *result, PhoshLockscreen *self)
+   gboolean authenticated;
+ 
+   priv = phosh_lockscreen_get_instance_private (self);
++  auth_count++;
+   authenticated = phosh_auth_authenticate_finish (auth, result, &error);
+   if (error != NULL) {
+     g_warning ("Auth failed unexpected: %s", error->message);
+@@ -267,12 +270,21 @@ auth_async_cb (PhoshAuth *auth, GAsyncResult *result, PhoshLockscreen *self)
+   }
+ 
+   if (authenticated) {
++    auth_count = 0;
+     g_signal_emit (self, signals[LOCKSCREEN_UNLOCK], 0);
+   } else {
+-    /* give visual feedback on error */
+-    phosh_lockscreen_set_unlock_status (self, _("Enter Passcode"));
+-    phosh_lockscreen_shake_pin_entry (self);
+-    phosh_keypad_distribute (PHOSH_KEYPAD (priv->keypad));
++    if (auth_count < 5){
++      /* give visual feedback on error */
++      phosh_lockscreen_set_unlock_status (self, _("Enter Passcode"));
++      phosh_lockscreen_shake_pin_entry (self);
++      phosh_keypad_distribute (PHOSH_KEYPAD (priv->keypad));
++    } else {
++      /* shutdown */
++      phosh_lockscreen_set_unlock_status (self, _("Shutdown"));
++      phosh_session_manager_shutdown(phosh_shell_get_session_manager (phosh_shell_get_default ()));
++//      phosh_shell_fade_out (phosh_shell_get_default (), 0);
++      return;
++    }
+   }
+```
+2. modify phosh/src/ui/end-session-dialog.ui (make a cancel button invisible on a dialog)
+- phosh/src/ui/end-session-dialog.ui
+```
+diff --git a/src/ui/end-session-dialog.ui b/src/ui/end-session-dialog.ui
+index 9a41c0bb..f07cb6c4 100644
+--- a/src/ui/end-session-dialog.ui
++++ b/src/ui/end-session-dialog.ui
+@@ -60,7 +60,7 @@
+     <child type="phosh-dialog-button">
+       <object class="GtkButton" id="btn_cancel">
+         <property name="label" translatable="yes">Cancel</property>
+-        <property name="visible">True</property>
++        <property name="visible">False</property>
+         <property name="can-focus">True</property>
+```
+3. modify phosh/src/session-manager.c (change timeout of the dialog to 5 seconds)
+- phosh/src/session-manager.c
+```
+diff --git a/src/session-manager.c b/src/session-manager.c
+index fb66f3b2..fa3b7aed 100644
+--- a/src/session-manager.c
++++ b/src/session-manager.c
+@@ -129,6 +129,7 @@ handle_end_session_open (PhoshDBusEndSessionDialog *object,
+       return TRUE;
+   }
+ 
++  arg_seconds_to_stay_open = 5;
+   self->dialog = PHOSH_END_SESSION_DIALOG (phosh_end_session_dialog_new (arg_type,
+                                                                          arg_seconds_to_stay_open,
+                                                                          arg_inhibitor_object_paths));
+```
+4. build
+```
+cd /git/phosh
+sudo meson compile -C _build
+```
+5. reboot pinephone
+
+#### restore to original state
+1. restore the original file
+```
+ls -l /usr/libexec/phosh
+sudo rm /usr/libexec/phosh
+
+sudo mv /usr/libexec/phosh_orig /usr/libexec/phosh
+ls -l /usr/libexec/phosh
+```
+2. reboot pinephone
 
