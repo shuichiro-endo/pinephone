@@ -263,13 +263,13 @@ sudo mkdir /git
 cd /git
 sudo git clone https://gitlab.gnome.org/World/Phosh/phosh
 cd phosh
-git submodule update --init --recursive
+sudo git submodule update --init --recursive
 
 sudo apt-get -y install build-essential
 sudo apt-get -y build-dep .
 
-meson setup _build
-meson compile -C _build
+sudo meson setup _build
+sudo meson compile -C _build
 
 sudo mv /usr/libexec/phosh /usr/libexec/phosh_orig
 sudo ln -s /git/phosh/_build/run /usr/libexec/phosh
