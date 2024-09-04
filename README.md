@@ -257,23 +257,26 @@ phosh-top-panel {
 
 ### customize Phosh
 - [Phosh](https://gitlab.gnome.org/World/Phosh/phosh)
-
 ```
-sudo mkdir /git
-cd /git
-sudo git clone https://gitlab.gnome.org/World/Phosh/phosh
+mkdir ~/git
+cd ~/git
+git clone https://gitlab.gnome.org/World/Phosh/phosh
 cd phosh
-sudo git submodule update --init --recursive
+git submodule update --init --recursive
 
 sudo apt-get -y install build-essential
 sudo apt-get -y build-dep .
 
-sudo meson setup _build
-sudo meson compile -C _build
+meson setup _build
+meson compile -C _build
 
 sudo mv /usr/libexec/phosh /usr/libexec/phosh_orig
-sudo ln -s /git/phosh/_build/run /usr/libexec/phosh
+sudo cp -rp ~/git/phosh/_build/src/phosh /usr/libexec/phosh
+sudo chown root:root /usr/libexec/phosh
+sudo chmod 755 /usr/libexec/phosh
 ls -l /usr/libexec/phosh
+
+sudo reboot
 ```
 
 #### invisible search bar on the app grid
@@ -294,8 +297,15 @@ index 03b66485..6feb8241 100644
 ```
 2. build
 ```
-cd /git/phosh
-sudo meson compile -C _build
+cd ~/git/phosh
+meson compile -C _build
+
+sudo mv /usr/libexec/phosh /usr/libexec/phosh_
+sudo cp -rp ~/git/phosh/_build/src/phosh /usr/libexec/phosh
+sudo chown root:root /usr/libexec/phosh
+sudo chmod 755 /usr/libexec/phosh
+ls -l /usr/libexec/phosh
+sudo rm /usr/libexec/phosh_
 ```
 3. reboot pinephone
 
@@ -317,8 +327,15 @@ index fe0bcc37..61841454 100644
 ```
 2. build
 ```
-cd /git/phosh
-sudo meson compile -C _build
+cd ~/git/phosh
+meson compile -C _build
+
+sudo mv /usr/libexec/phosh /usr/libexec/phosh_
+sudo cp -rp ~/git/phosh/_build/src/phosh /usr/libexec/phosh
+sudo chown root:root /usr/libexec/phosh
+sudo chmod 755 /usr/libexec/phosh
+ls -l /usr/libexec/phosh
+sudo rm /usr/libexec/phosh_
 ```
 3. reboot pinephone
 
@@ -404,8 +421,15 @@ index fb66f3b2..fa3b7aed 100644
 ```
 4. build
 ```
-cd /git/phosh
-sudo meson compile -C _build
+cd ~/git/phosh
+meson compile -C _build
+
+sudo mv /usr/libexec/phosh /usr/libexec/phosh_
+sudo cp -rp ~/git/phosh/_build/src/phosh /usr/libexec/phosh
+sudo chown root:root /usr/libexec/phosh
+sudo chmod 755 /usr/libexec/phosh
+ls -l /usr/libexec/phosh
+sudo rm /usr/libexec/phosh_
 ```
 5. reboot pinephone
 
