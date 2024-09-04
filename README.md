@@ -15,6 +15,13 @@ setup [pinephone](https://pine64.org/devices/pinephone/)
 
 ### install openssh-server
 
+### disable startup programs
+- gnome-software
+```
+ls -l /etc/xdg/autostart/org.gnome.Software.desktop
+sudo mv /etc/xdg/autostart/org.gnome.Software.desktop /etc/xdg/autostart/org.gnome.Software.desktop_bk
+```
+
 ### change scale setting (200 -> 100)
 1. modify /usr/share/phosh/phoc.ini file
 ```
@@ -271,6 +278,7 @@ meson setup _build
 meson compile -C _build
 
 sudo mv /usr/libexec/phosh /usr/libexec/phosh_orig
+strip -s ~/git/phosh/_build/src/phosh
 sudo cp -rp ~/git/phosh/_build/src/phosh /usr/libexec/phosh
 sudo chown root:root /usr/libexec/phosh
 sudo chmod 755 /usr/libexec/phosh
@@ -301,6 +309,7 @@ cd ~/git/phosh
 meson compile -C _build
 
 sudo mv /usr/libexec/phosh /usr/libexec/phosh_
+strip -s ~/git/phosh/_build/src/phosh
 sudo cp -rp ~/git/phosh/_build/src/phosh /usr/libexec/phosh
 sudo chown root:root /usr/libexec/phosh
 sudo chmod 755 /usr/libexec/phosh
@@ -331,6 +340,7 @@ cd ~/git/phosh
 meson compile -C _build
 
 sudo mv /usr/libexec/phosh /usr/libexec/phosh_
+strip -s ~/git/phosh/_build/src/phosh
 sudo cp -rp ~/git/phosh/_build/src/phosh /usr/libexec/phosh
 sudo chown root:root /usr/libexec/phosh
 sudo chmod 755 /usr/libexec/phosh
@@ -425,6 +435,7 @@ cd ~/git/phosh
 meson compile -C _build
 
 sudo mv /usr/libexec/phosh /usr/libexec/phosh_
+strip -s ~/git/phosh/_build/src/phosh
 sudo cp -rp ~/git/phosh/_build/src/phosh /usr/libexec/phosh
 sudo chown root:root /usr/libexec/phosh
 sudo chmod 755 /usr/libexec/phosh
