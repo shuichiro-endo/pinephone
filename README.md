@@ -367,7 +367,6 @@ index ef00ea27..6bd62d44 100644
 +      /* shutdown */
 +      phosh_lockscreen_set_unlock_status (self, _("Shutdown"));
 +      phosh_session_manager_shutdown(phosh_shell_get_session_manager (phosh_shell_get_default ()));
-+//      phosh_shell_fade_out (phosh_shell_get_default (), 0);
 +      return;
 +    }
    }
