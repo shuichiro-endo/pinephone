@@ -37,15 +37,9 @@ gsettings set org.gnome.desktop.wm.keybindings panel-run-dialog "[]"
 ```
 [Login]
 NAutoVTs=0
-ReserveVT=N
+ReserveVT=0
 ```
-2. change file name
-- /lib/systemd/system/getty@.service
-```
-ls -l /lib/systemd/system/getty@.service
-sudo mv /lib/systemd/system/getty@.service /lib/systemd/system/getty@.service_bk
-```
-3. reboot pinephone
+2. reboot pinephone
 
 ### change scale setting (200% -> 100%)
 1. modify /usr/share/phosh/phoc.ini file
