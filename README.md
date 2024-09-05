@@ -41,6 +41,35 @@ ReserveVT=0
 ```
 2. reboot pinephone
 
+### enable failock
+1. modify /etc/security/faillock.conf
+```
+audit
+silent
+deny = 3
+fail_interval = 180
+unlock_time = 600
+even_deny_root
+root_unlock_time = 900
+```
+2. modify /etc/pam.d/common-auth
+```
+auth    required                        pam_faillock.so preauth
+auth    [success=1 default=ignore]      pam_unix.so nullok
+auth    [default=die]                   pam_faillock.so authfail
+auth    sufficient                      pam_faillock.so authsucc
+auth    requisite                       pam_deny.so
+auth    required                        pam_permit.so
+auth    optional                        pam_cap.so
+```
+3. modify /etc/pam.d/common-account
+```
+account required                        pam_faillock.so
+account [success=1 new_authtok_reqd=done default=ignore]        pam_unix.so
+account requisite                       pam_deny.so
+account required                        pam_permit.so
+```
+
 ### change scale setting (200% -> 100%)
 1. modify /usr/share/phosh/phoc.ini file
 ```
