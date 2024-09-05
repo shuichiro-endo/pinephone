@@ -22,7 +22,32 @@ ls -l /etc/xdg/autostart/org.gnome.Software.desktop
 sudo mv /etc/xdg/autostart/org.gnome.Software.desktop /etc/xdg/autostart/org.gnome.Software.desktop_bk
 ```
 
-### change scale setting (200 -> 100)
+### disable panel
+- panel-main-menu (ALT + F1)
+```
+gsettings set org.gnome.desktop.wm.keybindings panel-main-menu "[]"
+```
+- panel-run-dialog (ALT + F2)
+```
+gsettings set org.gnome.desktop.wm.keybindings panel-run-dialog "[]"
+```
+
+### disable tty terminal console (tty2 - tty6)
+1. modify /etc/systemd/logind.conf
+```
+[Login]
+NAutoVTs=0
+ReserveVT=N
+```
+2. change file name
+- /lib/systemd/system/getty@.service
+```
+ls -l /lib/systemd/system/getty@.service
+sudo mv /lib/systemd/system/getty@.service /lib/systemd/system/getty@.service_bk
+```
+3. reboot pinephone
+
+### change scale setting (200% -> 100%)
 1. modify /usr/share/phosh/phoc.ini file
 ```
 #[core]
