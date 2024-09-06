@@ -319,6 +319,9 @@ git clone https://gitlab.gnome.org/World/Phosh/phosh
 cd phosh
 git submodule update --init --recursive
 
+git branch myphosh
+git checkout myphosh
+
 sudo apt-get -y install build-essential
 sudo apt-get -y build-dep .
 
@@ -397,7 +400,7 @@ sudo rm /usr/libexec/phosh_
 ```
 3. reboot pinephone
 
-#### shutdown pinephone if the wrong pin is entered 5 times in a row on the keypad
+#### shutdown pinephone if the wrong pin is entered 3 times in a row on the keypad
 1. modify phosh/src/lockscreen.c (check auth count and shutdown pinephone)
 - phosh/src/lockscreen.c
 ```
@@ -433,7 +436,7 @@ index ef00ea27..6bd62d44 100644
 -    phosh_lockscreen_set_unlock_status (self, _("Enter Passcode"));
 -    phosh_lockscreen_shake_pin_entry (self);
 -    phosh_keypad_distribute (PHOSH_KEYPAD (priv->keypad));
-+    if (auth_count < 5){
++    if (auth_count < 3){
 +      /* give visual feedback on error */
 +      phosh_lockscreen_set_unlock_status (self, _("Enter Passcode"));
 +      phosh_lockscreen_shake_pin_entry (self);
