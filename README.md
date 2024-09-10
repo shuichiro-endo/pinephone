@@ -15,11 +15,21 @@ setup [pinephone](https://pine64.org/devices/pinephone/)
 
 ### install openssh-server
 
-### disable startup programs
+### change root password
+```
+sudo passwd root
+```
+
+### disable startup programs (optional)
 - gnome-software
 ```
 ls -l /etc/xdg/autostart/org.gnome.Software.desktop
 sudo mv /etc/xdg/autostart/org.gnome.Software.desktop /etc/xdg/autostart/org.gnome.Software.desktop_bk
+```
+- geoclue-demo-agent
+```
+ls -l /etc/xdg/autostart/geoclue-demo-agent.desktop
+sudo mv /etc/xdg/autostart/geoclue-demo-agent.desktop /etc/xdg/autostart/geoclue-demo-agent.desktop_bk
 ```
 
 ### disable panel
@@ -41,7 +51,7 @@ ReserveVT=0
 ```
 2. reboot pinephone
 
-### enable failock
+### enable faillock
 1. modify /etc/security/faillock.conf
 ```
 audit
@@ -122,7 +132,7 @@ sudo apt install gnome-tweaks
 ```
 2. install fcitx5-kkc
 ```
-sudo apt install fcitx5-kkc
+sudo apt install fcitx5-kkc gnome-shell-extension-kimpanel
 ```
 3. add the following variables to ~/.profile file 
 - ~/.profile
@@ -274,6 +284,37 @@ self.textEdit_layout.addWidget(self.right_textEdit)
 ```
 2. run argostranslategui application (performance test)
 ![](imgs/001.jpg)
+
+#### change from normal mode to dark mode
+1. modify ~/.pyenv/versions/3.8.19/lib/python3.8/site-packages/argostranslategui/gui.py
+- [https://github.com/argosopentech/argos-translate-gui/blob/main/argostranslategui/gui.py#L450](https://github.com/argosopentech/argos-translate-gui/blob/main/argostranslategui/gui.py#L450)
+```
+class GUIApplication:
+    def __init__(self):
+        self.app = QApplication([])
+        self.main_window = GUIWindow()
+
+        # dark mode https://stackoverflow.com/questions/48256772/dark-theme-for-qt-widgets
+        self.app.setStyle("Fusion")                                       # add
+        palette = QPalette()                                              # add
+        palette.setColor(QPalette.Window, QColor(53, 53, 53))             # add
+        palette.setColor(QPalette.WindowText, Qt.white)                   # add
+        palette.setColor(QPalette.Base, QColor(25, 25, 25))               # add
+        palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))      # add
+        palette.setColor(QPalette.ToolTipBase, Qt.black)                  # add
+        palette.setColor(QPalette.ToolTipText, Qt.white)                  # add
+        palette.setColor(QPalette.Text, Qt.white)                         # add
+        palette.setColor(QPalette.Button, QColor(53, 53, 53))             # add
+        palette.setColor(QPalette.ButtonText, Qt.white)                   # add
+        palette.setColor(QPalette.BrightText, Qt.red)                     # add
+        palette.setColor(QPalette.Link, QColor(42, 130, 218))             # add
+        palette.setColor(QPalette.Highlight, QColor(42, 130, 218))        # add
+        palette.setColor(QPalette.HighlightedText, Qt.black)              # add
+        self.app.setPalette(palette)                                      # add
+
+        # Icon
+```
+2. run argostranslategui application
 
 ### customize lockscreen and app grid
 #### set a background for lockscreen and app grid
