@@ -134,7 +134,17 @@ sudo apt install gnome-tweaks
 ```
 sudo apt install fcitx5-kkc gnome-shell-extension-kimpanel
 ```
-3. add the following variables to ~/.profile file 
+3. enable phosh.service (display manager)
+```
+sudo systemctl status phosh.service
+sudo systemctl enable phosh.service
+```
+4. disable gtk3.service (display manager)
+```
+sudo systemctl status gdm3.service
+sudo systemctl disable gdm3.service
+```
+5. add the following variables to ~/.profile file
 - ~/.profile
 ```
 # fcitx5
@@ -142,12 +152,12 @@ export XMODIFIERS=@im=fcitx
 export QT_IM_MODULE=fcitx
 export GTK_IM_MODULE=fcitx
 ```
-4. reboot pinephone
-5. run Fcitx 5 Configuration application
-6. add Kana Kanji to Current Input Method
-7. run Tweaks application
-8. add Fcitx 5 to Startup Applications
-9. reboot pinephone
+6. reboot pinephone
+7. run Fcitx 5 Configuration application
+8. add Kana Kanji to Current Input Method
+9. run Tweaks application
+10. add Fcitx 5 to Startup Applications
+11. reboot pinephone
 
 ### install custom squeekboard layout
 - [Ick/Squeekboard-Layouts](https://codeberg.org/Ick/Squeekboard-Layouts)
