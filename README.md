@@ -361,7 +361,37 @@ phosh-top-panel {
 - [CSS Properties](https://docs.gtk.org/gtk3/css-properties.html)
 
 
-### customize Phosh
+### customize Phoc and Phosh
+> [!CAUTION]
+> Phoc and Phosh files return to the original state when you update them. (e.g. apt upgrade)
+>
+> You need to customize them again.
+- [Phoc](https://gitlab.gnome.org/World/Phosh/phoc)
+```
+mkdir ~/git
+cd ~/git
+git clone https://gitlab.gnome.org/World/Phosh/phoc
+cd phoc
+
+git branch myphoc
+git checkout myphoc
+
+sudo apt-get -y install build-essential
+sudo apt-get -y build-dep .
+
+meson setup _build
+meson compile -C _build
+
+sudo mv /usr/bin/phoc /usr/bin/phoc_orig
+sudo cp -rp ~/git/phoc/_build/src/phoc /usr/bin/phoc
+sudo chown root:root /usr/bin/phoc
+sudo chmod 755 /usr/bin/phoc
+sudo strip -s /usr/bin/phoc
+ls -l /usr/bin/phoc
+
+sudo reboot
+```
+
 - [Phosh](https://gitlab.gnome.org/World/Phosh/phosh)
 ```
 mkdir ~/git
@@ -390,8 +420,8 @@ sudo reboot
 ```
 
 #### invisible search bar on the app grid
+- Phosh
 1. modify phosh/src/ui/app-grid.ui
-- phosh/src/ui/app-grid.ui
 ```
 diff --git a/src/ui/app-grid.ui b/src/ui/app-grid.ui
 index 03b66485..6feb8241 100644
@@ -421,8 +451,8 @@ sudo rm /usr/libexec/phosh_
 3. reboot pinephone
 
 #### enable shuffled keypad on the lockscreen
+- Phosh
 1. modify phosh/data/sm.puri.phosh.gschema.xml
-- phosh/data/sm.puri.phosh.gschema.xml
 ```
 diff --git a/data/sm.puri.phosh.gschema.xml b/data/sm.puri.phosh.gschema.xml
 index fe0bcc37..61841454 100644
@@ -452,8 +482,8 @@ sudo rm /usr/libexec/phosh_
 3. reboot pinephone
 
 #### shutdown pinephone if the wrong pin is entered 3 times in a row on the keypad
+- Phosh
 1. modify phosh/src/lockscreen.c (check auth count and shutdown pinephone)
-- phosh/src/lockscreen.c
 ```
 diff --git a/src/lockscreen.c b/src/lockscreen.c
 index ef00ea27..6bd62d44 100644
@@ -501,7 +531,6 @@ index ef00ea27..6bd62d44 100644
    }
 ```
 2. modify phosh/src/ui/end-session-dialog.ui (make a cancel button invisible on a dialog)
-- phosh/src/ui/end-session-dialog.ui
 ```
 diff --git a/src/ui/end-session-dialog.ui b/src/ui/end-session-dialog.ui
 index 9a41c0bb..f07cb6c4 100644
@@ -516,7 +545,6 @@ index 9a41c0bb..f07cb6c4 100644
          <property name="can-focus">True</property>
 ```
 3. modify phosh/src/session-manager.c (change timeout of the dialog to 5 seconds)
-- phosh/src/session-manager.c
 ```
 diff --git a/src/session-manager.c b/src/session-manager.c
 index fb66f3b2..fa3b7aed 100644
@@ -546,7 +574,136 @@ sudo rm /usr/libexec/phosh_
 ```
 5. reboot pinephone
 
+#### display virtual keyboard for application search and lockscreen
+> [!WARNING]
+> You are able to display virtual keyboard for application search and lockscreen using powerbar and keyboard button, if you perform this customization.
+> 
+> However, to hide the keyboard again, you need to press the powerbar button.
+- Phoc
+1. modify phoc/src/layer-shell.c (reference:[https://gitlab.gnome.org/World/Phosh/phoc/-/issues/302](https://gitlab.gnome.org/World/Phosh/phoc/-/issues/302))
+```
+diff --git a/src/layer-shell.c b/src/layer-shell.c
+index c8d92d5..556613e 100644
+--- a/src/layer-shell.c
++++ b/src/layer-shell.c
+@@ -792,8 +792,9 @@ phoc_layer_shell_update_osk (PhocOutput *output, gboolean arrange)
+       continue;
+ 
+     g_assert (PHOC_IS_SEAT (seat));
+-    if (seat->focused_layer->pending.layer >= osk->layer_surface->pending.layer &&
+-        phoc_input_method_relay_is_enabled (&seat->im_relay, seat->focused_layer->surface)) {
++//    if (seat->focused_layer->pending.layer >= osk->layer_surface->pending.layer &&
++//        phoc_input_method_relay_is_enabled (&seat->im_relay, seat->focused_layer->surface)) {
++    if (seat->focused_layer->pending.layer >= osk->layer_surface->pending.layer) {
+       force_overlay = TRUE;
+       break;
+     }
+```
+2. build
+```
+cd ~/git/phoc
+meson compile -C _build
+
+sudo mv /usr/bin/phoc /usr/bin/phoc_
+sudo cp -rp ~/git/phoc/_build/src/phoc /usr/bin/phoc
+sudo chown root:root /usr/bin/phoc
+sudo chmod 755 /usr/bin/phoc
+sudo strip -s /usr/bin/phoc
+ls -l /usr/bin/phoc
+sudo rm /usr/bin/phoc_
+```
+
+- Phosh
+1. modify phosh/src/lockscreen.c
+```
+@@ -241,10 +243,27 @@ static void
+ focus_pin_entry (PhoshLockscreen *self, gboolean enable_osk)
+ {
+   PhoshLockscreenPrivate *priv = phosh_lockscreen_get_instance_private (self);
++  PhoshOskManager *osk;
++  gboolean osk_is_available, osk_current_state, osk_new_state;
+ 
+   if (enable_osk) {
+     /* restore default OSK behavior */
+-    g_object_set (priv->entry_pin, "im-module", NULL, NULL);
++//    g_object_set (priv->entry_pin, "im-module", NULL, NULL);
++
++    osk = phosh_shell_get_osk_manager (phosh_shell_get_default ());
++
++    osk_is_available = phosh_osk_manager_get_available (osk);
++    osk_current_state = phosh_osk_manager_get_visible (osk);
++    osk_new_state = osk_current_state;
++
++    if (osk_is_available) {
++      osk_new_state = !osk_current_state;
++    } else {
++      return;
++    }
++
++    phosh_osk_manager_set_visible (osk, osk_new_state);
++
+   }
+
+@@ -310,13 +338,31 @@ on_osk_visibility_changed (PhoshLockscreen *self,
+                            PhoshOskManager *osk)
+ {
+   PhoshLockscreenPrivate *priv;
++  gboolean osk_is_available, osk_current_state, osk_new_state;
+ 
+   g_assert (PHOSH_IS_LOCKSCREEN (self));
+   priv = phosh_lockscreen_get_instance_private (self);
+ 
+   if (!phosh_osk_manager_get_visible (osk)) {
+-    g_object_set (priv->entry_pin, "im-module", "gtk-im-context-none", NULL);
++//    g_object_set (priv->entry_pin, "im-module", "gtk-im-context-none", NULL);
++
++      osk = phosh_shell_get_osk_manager (phosh_shell_get_default ());
++
++      osk_is_available = phosh_osk_manager_get_available (osk);
++      osk_current_state = phosh_osk_manager_get_visible (osk);
++      osk_new_state = osk_current_state;
++
++      if (osk_is_available) {
++        osk_new_state = !osk_current_state;
++      } else {
++        return;
++      }
++
++      phosh_osk_manager_set_visible (osk, osk_new_state);
+   }
++
++  gtk_widget_set_sensitive (priv->entry_pin, TRUE);
++  gtk_entry_grab_focus_without_selecting (GTK_ENTRY (priv->entry_pin));
+ }
+```
+2. build
+```
+cd ~/git/phosh
+meson compile -C _build
+
+sudo mv /usr/libexec/phosh /usr/libexec/phosh_
+strip -s ~/git/phosh/_build/src/phosh
+sudo cp -rp ~/git/phosh/_build/src/phosh /usr/libexec/phosh
+sudo chown root:root /usr/libexec/phosh
+sudo chmod 755 /usr/libexec/phosh
+ls -l /usr/libexec/phosh
+sudo rm /usr/libexec/phosh_
+```
+3. reboot pinephone
+
 #### restore to original state
+- Phoc
+1. restore the original file
+```
+ls -l /usr/bin/phoc
+sudo rm /usr/bin/phoc
+
+sudo mv /usr/bin/phoc_orig /usr/bin/phoc
+ls -l /usr/bin/phoc
+```
+2. reboot pinephone
+
+- Phosh
 1. restore the original file
 ```
 ls -l /usr/libexec/phosh
