@@ -689,7 +689,21 @@ sudo chmod 755 /usr/libexec/phosh
 ls -l /usr/libexec/phosh
 sudo rm /usr/libexec/phosh_
 ```
-3. reboot pinephone
+3. disable phosh.service and enable gdm3.service (optional)
+> [!NOTE]
+> You may not be able to login due to trouble. (e.g. apt upgrade)
+> 
+> When starting up, login using gdm3 login manager. (select phosh from gear icon and login)
+```
+sudo systemctl status phosh.service
+sudo systemctl disable phosh.service
+
+sudo systemctl status gdm3.service
+sudo systemctl enable gdm3.service
+```
+If you can't enable gdm3.service, you need to modify /lib/systemd/system/gdm3.service file. 
+[https://askubuntu.com/questions/1361285/cant-enable-gdm3-after-following-a-tutorial-on-how-to-remove-kde-from-ubuntu](https://askubuntu.com/questions/1361285/cant-enable-gdm3-after-following-a-tutorial-on-how-to-remove-kde-from-ubuntu)
+4. reboot pinephone
 
 #### restore to original state
 - Phoc
