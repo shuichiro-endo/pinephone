@@ -616,12 +616,11 @@ sudo rm /usr/bin/phoc_
 - Phosh
 1. modify phosh/src/lockscreen.c
 ```
-@@ -241,10 +243,27 @@ static void
+@@ -241,10 +243,15 @@ static void
  focus_pin_entry (PhoshLockscreen *self, gboolean enable_osk)
  {
    PhoshLockscreenPrivate *priv = phosh_lockscreen_get_instance_private (self);
 +  PhoshOskManager *osk;
-+  gboolean osk_is_available, osk_current_state, osk_new_state;
  
    if (enable_osk) {
      /* restore default OSK behavior */
@@ -630,19 +629,10 @@ sudo rm /usr/bin/phoc_
 +
 +    osk = phosh_shell_get_osk_manager (phosh_shell_get_default ());
 +
-+    osk_is_available = phosh_osk_manager_get_available (osk);
-+    osk_current_state = phosh_osk_manager_get_visible (osk);
-+    osk_new_state = osk_current_state;
-+
-+    if (osk_is_available) {
-+      osk_new_state = !osk_current_state;
-+    } else {
-+      return;
-+    }
-+
-+    phosh_osk_manager_set_visible (osk, osk_new_state);
-+
++    phosh_osk_manager_set_visible (osk, TRUE);
    }
+ 
+   gtk_widget_set_sensitive (priv->entry_pin, TRUE);
 
 @@ -310,13 +338,31 @@ on_osk_visibility_changed (PhoshLockscreen *self,
                             PhoshOskManager *osk)
