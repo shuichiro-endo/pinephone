@@ -691,9 +691,11 @@ sudo rm /usr/libexec/phosh_
 ```
 3. disable phosh.service and enable gdm3.service (optional)
 > [!NOTE]
-> You may not be able to login due to trouble. (e.g. apt upgrade)
+> You may not be able to login because of trouble. (e.g. apt upgrade)
 > 
 > When starting up, login using gdm3 login manager. (select phosh from gear icon and login)
+>
+> You can use virtual keyboard of gdm3.
 ```
 sudo systemctl status phosh.service
 sudo systemctl disable phosh.service
