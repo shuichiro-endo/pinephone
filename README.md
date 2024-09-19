@@ -701,8 +701,9 @@ sudo systemctl disable phosh.service
 sudo systemctl status gdm3.service
 sudo systemctl enable gdm3.service
 ```
-If you can't enable gdm3.service, you need to modify /lib/systemd/system/gdm3.service file. 
+If you can't enable gdm3.service, you need to modify /lib/systemd/system/gdm3.service file.
 [https://askubuntu.com/questions/1361285/cant-enable-gdm3-after-following-a-tutorial-on-how-to-remove-kde-from-ubuntu](https://askubuntu.com/questions/1361285/cant-enable-gdm3-after-following-a-tutorial-on-how-to-remove-kde-from-ubuntu)
+
 4. reboot pinephone
 
 #### restore to original state
