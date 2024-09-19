@@ -634,7 +634,26 @@ sudo rm /usr/bin/phoc_
  
    gtk_widget_set_sensitive (priv->entry_pin, TRUE);
 
-@@ -310,13 +338,31 @@ on_osk_visibility_changed (PhoshLockscreen *self,
+@@ -258,6 +265,7 @@ auth_async_cb (PhoshAuth *auth, GAsyncResult *result, PhoshLockscreen *self)
+   PhoshLockscreenPrivate *priv;
+   GError *error = NULL;
+   gboolean authenticated;
++  PhoshOskManager *osk;
+ 
+   priv = phosh_lockscreen_get_instance_private (self);
+   authenticated = phosh_auth_authenticate_finish (auth, result, &error);
+@@ -268,6 +276,9 @@ auth_async_cb (PhoshAuth *auth, GAsyncResult *result, PhoshLockscreen *self)
+ 
+   if (authenticated) {
+     g_signal_emit (self, signals[LOCKSCREEN_UNLOCK], 0);
++
++    osk = phosh_shell_get_osk_manager (phosh_shell_get_default ());
++    phosh_osk_manager_set_visible (osk, FALSE);
+   } else {
+     /* give visual feedback on error */
+     phosh_lockscreen_set_unlock_status (self, _("Enter Passcode"));
+
+@@ -310,12 +331,27 @@ on_osk_visibility_changed (PhoshLockscreen *self,
                             PhoshOskManager *osk)
  {
    PhoshLockscreenPrivate *priv;
@@ -661,9 +680,6 @@ sudo rm /usr/bin/phoc_
 +
 +      phosh_osk_manager_set_visible (osk, osk_new_state);
    }
-+
-+  gtk_widget_set_sensitive (priv->entry_pin, TRUE);
-+  gtk_entry_grab_focus_without_selecting (GTK_ENTRY (priv->entry_pin));
  }
 ```
 2. build
