@@ -578,7 +578,7 @@ sudo rm /usr/libexec/phosh_
 > [!WARNING]
 > You are able to display virtual keyboard for application search and lockscreen using powerbar and keyboard button, if you perform this customization.
 > 
-> However, to hide the keyboard again, you need to press the powerbar button.
+> However, to hide the keyboard again on app grid, you need to press the powerbar button.
 - Phoc
 1. modify phoc/src/layer-shell.c (reference:[https://gitlab.gnome.org/World/Phosh/phoc/-/issues/302](https://gitlab.gnome.org/World/Phosh/phoc/-/issues/302))
 ```
