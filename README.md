@@ -134,7 +134,7 @@ sudo apt install gnome-tweaks
 ```
 sudo apt install fcitx5-kkc gnome-shell-extension-kimpanel
 ```
-3. enable phosh.service (display manager)
+3. enable phosh.service (graphical shell)
 ```
 sudo systemctl status phosh.service
 sudo systemctl enable phosh.service
@@ -699,7 +699,7 @@ sudo rm /usr/libexec/phosh_
 > [!NOTE]
 > You may not be able to login because of trouble. (e.g. apt upgrade)
 > 
-> When starting up, login using gdm3 login manager. (select phosh from gear icon and login)
+> When starting up, login using gdm3. (select phosh from gear icon and login)
 >
 > You can use virtual keyboard of gdm3.
 ```
