@@ -616,25 +616,20 @@ sudo rm /usr/bin/phoc_
 - Phosh
 1. modify phosh/src/lockscreen.c
 ```
-@@ -241,10 +243,15 @@ static void
- focus_pin_entry (PhoshLockscreen *self, gboolean enable_osk)
- {
-   PhoshLockscreenPrivate *priv = phosh_lockscreen_get_instance_private (self);
-+  PhoshOskManager *osk;
+diff --git a/src/lockscreen.c b/src/lockscreen.c
+index ef00ea27..90b9703f 100644
+--- a/src/lockscreen.c
++++ b/src/lockscreen.c
+@@ -244,7 +244,7 @@ focus_pin_entry (PhoshLockscreen *self, gboolean enable_osk)
  
    if (enable_osk) {
      /* restore default OSK behavior */
 -    g_object_set (priv->entry_pin, "im-module", NULL, NULL);
 +//    g_object_set (priv->entry_pin, "im-module", NULL, NULL);
-+
-+    osk = phosh_shell_get_osk_manager (phosh_shell_get_default ());
-+
-+    phosh_osk_manager_set_visible (osk, TRUE);
    }
  
    gtk_widget_set_sensitive (priv->entry_pin, TRUE);
-
-@@ -258,6 +265,7 @@ auth_async_cb (PhoshAuth *auth, GAsyncResult *result, PhoshLockscreen *self)
+@@ -258,6 +258,7 @@ auth_async_cb (PhoshAuth *auth, GAsyncResult *result, PhoshLockscreen *self)
    PhoshLockscreenPrivate *priv;
    GError *error = NULL;
    gboolean authenticated;
@@ -642,45 +637,52 @@ sudo rm /usr/bin/phoc_
  
    priv = phosh_lockscreen_get_instance_private (self);
    authenticated = phosh_auth_authenticate_finish (auth, result, &error);
-@@ -268,6 +276,9 @@ auth_async_cb (PhoshAuth *auth, GAsyncResult *result, PhoshLockscreen *self)
- 
-   if (authenticated) {
-     g_signal_emit (self, signals[LOCKSCREEN_UNLOCK], 0);
+@@ -274,6 +275,10 @@ auth_async_cb (PhoshAuth *auth, GAsyncResult *result, PhoshLockscreen *self)
+     phosh_lockscreen_shake_pin_entry (self);
+     phosh_keypad_distribute (PHOSH_KEYPAD (priv->keypad));
+   }
 +
-+    osk = phosh_shell_get_osk_manager (phosh_shell_get_default ());
-+    phosh_osk_manager_set_visible (osk, FALSE);
-   } else {
-     /* give visual feedback on error */
-     phosh_lockscreen_set_unlock_status (self, _("Enter Passcode"));
-
-@@ -310,12 +331,27 @@ on_osk_visibility_changed (PhoshLockscreen *self,
-                            PhoshOskManager *osk)
++  osk = phosh_shell_get_osk_manager (phosh_shell_get_default ());
++  phosh_osk_manager_set_visible (osk, FALSE);
++
+   g_clear_object (&priv->auth);
+   priv->last_input = g_get_monotonic_time ();
+   g_object_unref (self);
+@@ -294,12 +299,16 @@ osk_button_clicked_cb (PhoshLockscreen *self,
+                        GtkWidget       *widget)
  {
    PhoshLockscreenPrivate *priv;
-+  gboolean osk_is_available, osk_current_state, osk_new_state;
++  PhoshOskManager *osk;
  
    g_assert (PHOSH_IS_LOCKSCREEN (self));
+   priv = phosh_lockscreen_get_instance_private (self);
+ 
+   priv->last_input = g_get_monotonic_time ();
+ 
++  osk = phosh_shell_get_osk_manager (phosh_shell_get_default ());
++  phosh_osk_manager_set_visible (osk, TRUE);
++
+   focus_pin_entry (self, TRUE);
+ }
+ 
+@@ -315,7 +324,7 @@ on_osk_visibility_changed (PhoshLockscreen *self,
    priv = phosh_lockscreen_get_instance_private (self);
  
    if (!phosh_osk_manager_get_visible (osk)) {
 -    g_object_set (priv->entry_pin, "im-module", "gtk-im-context-none", NULL);
 +//    g_object_set (priv->entry_pin, "im-module", "gtk-im-context-none", NULL);
-+
-+      osk = phosh_shell_get_osk_manager (phosh_shell_get_default ());
-+
-+      osk_is_available = phosh_osk_manager_get_available (osk);
-+      osk_current_state = phosh_osk_manager_get_visible (osk);
-+      osk_new_state = osk_current_state;
-+
-+      if (osk_is_available) {
-+        osk_new_state = !osk_current_state;
-+      } else {
-+        return;
-+      }
-+
-+      phosh_osk_manager_set_visible (osk, osk_new_state);
    }
  }
+ 
+@@ -491,6 +500,8 @@ carousel_page_changed_cb (PhoshLockscreen *self,
+       g_source_set_name_by_id (priv->idle_timer, "[PhoshLockscreen] keypad check");
+     }
+   } else {
++    phosh_osk_manager_set_visible (osk_manager, FALSE);
++
+     gtk_widget_set_sensitive (priv->entry_pin, FALSE);
+     clear_input (self, TRUE);
+   }
 ```
 2. build
 ```
