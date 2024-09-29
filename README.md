@@ -357,6 +357,7 @@ phosh-top-panel {
 2. reboot pinephone
 
 #### find out css node and selector for Phosh
+- [common.css](https://gitlab.gnome.org/World/Phosh/phosh/-/blob/main/src/stylesheet/common.css)
 - [Developing for Mobile Linux with Phosh - Part 0: Running nested](https://phosh.mobi/posts/phosh-dev-part-0/)
 - [CSS Properties](https://docs.gtk.org/gtk3/css-properties.html)
 
